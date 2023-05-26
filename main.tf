@@ -17,8 +17,25 @@ resource "kubernetes_namespace" "terraform-kubernetes" {
   }
 }
 
+locals {
+  kubernetes_namespace_value = "${kubernetes_namespace.terraform-kubernetes.metadata.0.name}"
+}
+
 module "nginx" {
   source = "./modules/nginx"
 
-  kubernetes_ns = "${kubernetes_namespace.terraform-kubernetes.metadata.0.name}"
+  kubernetes_ns = local.kubernetes_namespace_value
+}
+
+module "mysql" {
+  source = "./modules/mysql"
+
+  kubernetes_ns = local.kubernetes_namespace_value
+  mysql_password = var.mysql_password
+}
+
+module "cashier" {
+  source = "./modules/cashier"
+
+  kubernetes_ns = local.kubernetes_namespace_value
 }
